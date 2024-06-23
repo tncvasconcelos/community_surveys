@@ -1,0 +1,14 @@
+families_to_exclude
+Equisetaceae
+Lycopodiaceae
+Ophioglossaceae
+Polypodiaceae
+Selaginellaceae
+Cycadaceae
+Ginkgoaceae
+Pinaceae
+Podocarpaceae
+Taxaceae
+Zamiaceae
+Gnetaceae
+Ephedraceae
