@@ -11,8 +11,8 @@ alt <- raster::getData('worldclim', var='alt', res=2.5) # altitude
 ai <- raster("layers/alt.bil")
 npp <- raster("layers/MOD17A3H_Y_NPP_2023-01-01_rgb_720x360.TIFF")
 
-points=coordinates
-layers=c(bio[[1]],bio[[12]],alt, ai, npp)
+points <- all_surveys[,c("latitude","longitude")]
+layers <- c(bio[[1]],bio[[12]],alt, ai, npp)
 names(layers) <- c("temperature", "precipitation","altitude","ai","npp")
 for(layer_index in 1:length(layers)) {
   layer <- layers[[layer_index]]
@@ -32,6 +32,9 @@ for(layer_index in 1:length(layers)) {
   colnames(coordinates)[2+layer_index] <- names(layers)[layer_index]
 }
 all_surveys <- cbind(all_surveys,coordinates[,3:7])
+
+# if elevation is stated in study uses that; otherwise, takes data from altitude raster
+all_surveys$elevation <- unlist(ifelse(is.na(all_surveys$elevation), all_surveys$altitude, all_surveys$elevation))
 
 plot(all_surveys$precipitation, all_surveys$temperature)
 plot(all_surveys$bee, all_surveys$temperature)
