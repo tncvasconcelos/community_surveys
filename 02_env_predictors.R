@@ -3,16 +3,19 @@ setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
 
 # Load data on community surveys:
 all_surveys <- read.csv("data/community_studies_20Jun2024.csv")
+subset_bees <- subset(all_surveys, all_surveys$bee!="")
+subset_bees <- subset(subset_bees, !grepl("did", subset_bees$bee))
+subset_bees$bee <- as.numeric(subset_bees$bee)
 
 #---------------------------------
 # Extracting climate and altitude medians for each community
 bio <- raster::getData('worldclim', var='bio', res=2.5) # 19 worldclim vars
 alt <- raster::getData('worldclim', var='alt', res=2.5) # altitude
-ai <- raster("layers/alt.bil")
+ai <- raster("layers/ai_v3_yr.tif")
 npp <- raster("layers/MOD17A3H_Y_NPP_2023-01-01_rgb_720x360.TIFF")
 
-points <- all_surveys[,c("latitude","longitude")]
-layers <- c(bio[[1]],bio[[12]],alt, ai, npp)
+points <- subset_bees[,c("latitude","longitude")]
+layers <- c(bio[[1]],bio[[12]], alt, ai, npp)
 names(layers) <- c("temperature", "precipitation","altitude","ai","npp")
 for(layer_index in 1:length(layers)) {
   layer <- layers[[layer_index]]
@@ -28,17 +31,69 @@ for(layer_index in 1:length(layers)) {
     one_median <- median(values)
     medians <- c(medians, one_median)
   }  
-  coordinates <- cbind(coordinates, medians)
-  colnames(coordinates)[2+layer_index] <- names(layers)[layer_index]
+  points <- cbind(points, medians)
+  colnames(points)[2+layer_index] <- names(layers)[layer_index]
 }
-all_surveys <- cbind(all_surveys,coordinates[,3:7])
+subset_bees <- cbind(subset_bees,points[,3:7])
 
 # if elevation is stated in study uses that; otherwise, takes data from altitude raster
-all_surveys$elevation <- unlist(ifelse(is.na(all_surveys$elevation), all_surveys$altitude, all_surveys$elevation))
+subset_bees$elevation <- unlist(ifelse(is.na(subset_bees$elevation), subset_bees$altitude, all_surveys$elevation))
 
-plot(all_surveys$precipitation, all_surveys$temperature)
-plot(all_surveys$bee, all_surveys$temperature)
-plot(all_surveys$bee, all_surveys$precipitation)
+# Data types:
+pdf("plots/survey_type.pdf",height=4,width=4)
+pie(table(subset_bees$data_type))
+dev.off()
+
+subset_bees_synd <- subset(subset_bees, subset_bees$data_type=="syndrome")
+subset_bees_obs <- subset(subset_bees, subset_bees$data_type!="syndrome")
+
+# Some plots:
+plot(subset_bees$temperature,subset_bees$bee) # all surveys
+model <- lm(subset_bees$bee~subset_bees$temperature)
+summary(model)
+abline(model)
+#
+bee_temp <- ggplot(subset_bees, aes(V1, V2, color = V1)) +
+  geom_point(shape = 19, size = 1, show.legend = FALSE, alpha=0.75) +
+  theme_minimal() +
+  scale_color_viridis(option = "B") +
+  geom_abline(intercept=0, slope=pic_wo_cherries_misse$correlation$reg$coefficients, color="red",  linetype="dashed")  +
+  geom_smooth(se=FALSE, formula=y~x-1, col="red", lwd=0.5) +
+  ylim(-2, 2) +
+  xlim(0,8.5) +
+  xlab("PIC log(plant height) (m)") 
+
+plot(subset_bees_synd$temperature, subset_bees_synd$bee) # syndrome only
+model <- lm(subset_bees_synd$bee~subset_bees_synd$temperature)
+summary(model)
+abline(model)
+#
+plot(subset_bees_obs$temperature, subset_bees_obs$bee) # observation only
+model <- lm(subset_bees_obs$bee~subset_bees_obs$temperature)
+summary(model)
+abline(model)
+#
+
+plot(subset_bees$bee, subset_bees$precipitation)
+model <- lm(subset_bees$bee~subset_bees$precipitation)
+summary(model)
+abline(model)
+
+plot(subset_bees$elevation, subset_bees$bee)
+model <- lm(subset_bees$bee~subset_bees$elevation)
+summary(model)
+abline(model)
+
+plot(subset_bees$npp, subset_bees$bee)
+model <- lm(subset_bees$bee~subset_bees$npp)
+summary(model)
+abline(model)
+
+plot( subset_bees$ai, subset_bees$bee)
+model <- lm(subset_bees$bee~subset_bees$ai)
+summary(model)
+abline(model)
+
 
 #
 

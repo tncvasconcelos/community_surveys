@@ -36,10 +36,10 @@ dev.off()
 # Plot by type of vegetation
 coordinates <- subset_bees[,c("latitude","longitude")]
 biomes_for_points <- localityToBiome(coordinates, lat="latitude",lon="longitude")
-# sort(table(biomes_for_points$biome))
+# table(biomes_for_points$biome)
 subset_bees <- cbind(subset_bees, biomes_for_points)
 subset_bees <- subset(subset_bees, !is.na(subset_bees$biome))
-biome_pal <- c("#FFFF99","#F5F5DC","#FF7F00","#AADC32FF","#33A02C","#B2DF8A","#90EE90","#B15928","#FDBF6F","#006400")
+biome_pal <- c("#FFFF99","#F5F5DC","#FF7F00","#AADC32FF","#33A02C","#B2DF8A","#7CAE00","#90EE90","#B15928","#FDBF6F","#006400")
 #jitter_pal <- lapply(1:length(biome_pal), function(x) rep(biome_pal[x],times=as.numeric(table(subset_bees$biome))[x]))
 
 pdf("plots/prop_by_biome.pdf", width=8, height=3)
@@ -53,4 +53,22 @@ ggplot(subset_bees, aes(x = biome, y = bee, fill = biome)) +
     plot.title = element_text(size=13)) +
   ylab("proportion of species with bee flowers")
 dev.off()
+
+#---------------------------------
+# binarizing biome type:
+closed_canopy <- c("Tropical & Subtropical Moist Broadleaf Forests", "Tropical & Subtropical Dry Broadleaf Forests", "Tropical & Subtropical Coniferous Forests", "Temperate Broadleaf & Mixed Forests", "Temperate Conifer Forests", "Boreal Forests/Taiga")
+open_canopy <- c("Tropical & Subtropical Grasslands, Savannas & Shrubland", "Temperate Grasslands, Savannas & Shrublands", "Flooded Grasslands & Savannas", "Montane Grasslands & Shrublands", "Tundra","Deserts & Xeric Shrublands", "Mediterranean Forests, Woodlands & Scrub",  "Mangroves")
+subset_bees$bin_biome <- unlist(ifelse(subset_bees$biome%in%closed_canopy, "closed","open"))
+
+# any difference between open and closed canopy?
+boxplot(subset_bees$bee~subset_bees$bin_biome)
+abline(h=0.5, col="red", lty=3)
+PMCMRplus::kwAllPairsConoverTest(x=subset_bees$bee,g=as.factor(subset_bees$bin_biome)) # non-significant difference
+#---------------------------------
+                              
+# By type of data (observation vs. syndrome)
+boxplot(subset_bees$bee~subset_bees$data_type)
+abline(h=0.5, col="red", lty=3)
+PMCMRplus::kwAllPairsConoverTest(x=subset_bees$bee,g=as.factor(subset_bees$data_type))
+#
 

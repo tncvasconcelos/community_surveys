@@ -5,6 +5,7 @@ library(raster)
 library(maptools)
 library(ggplot2)
 library(rnaturalearth)
+library(PMCMRplus)
 data("wrld_simpl")
 
 
