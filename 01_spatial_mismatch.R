@@ -3,7 +3,7 @@ setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
 
 source("00_utility.R")
 
-bee <- read.csv("data/brazil_bee_sprich_state.csv")
+#bee <- read.csv("data/brazil_bee_sprich_state.csv")
 #unique(bee$Species[bee$region=="southeast"])
 #unique(bee$region)
 #unique(bee$Species)
@@ -88,6 +88,27 @@ tmp_map_prop <- ggplot(data = merged) +
   scale_fill_viridis_c(option = "C",alpha=0.9, trans="log", name="bee:angio species ") +
   theme_classic() +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
+
+
+#-------------------------------------
+# Making a raster of proportion bee:angiosperms for correlation analyses
+prop_merged <- merged[,-c(1:8)]
+save(prop_merged, file="layers/prop_merged.Rsave")
+template <- readRDS("data/template.map.Rdata")
+#template <- aggregate(template, fact=6)
+all_rasters <- list()
+for(i in 1:nrow(prop_merged)){
+  one_raster <- template
+  one_raster[] <- prop_merged$prop[i]
+  r2 <- crop(one_raster, extent( prop_merged[i,]))
+  r3 <- mask(r2,  prop_merged[i,])
+  r3 <- raster::resample(r3, template)
+  r3[is.na(r3)] <- 0
+  all_rasters[[i]] <- raster::mask(r3, template)
+}
+sp_rich_plot <- raster::calc(raster::stack(all_rasters), sum)
+writeRaster(sp_rich_plot, file="layers/prop_raster.tif")
+
 
 # arranged by proportion of species data deficient or unassessed
 pdf("plots/spatial_mismatch.pdf", height=5, width=15)

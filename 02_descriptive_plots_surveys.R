@@ -62,6 +62,7 @@ subset_bees$bin_biome <- unlist(ifelse(subset_bees$biome%in%closed_canopy, "clos
 
 # any difference between open and closed canopy?
 boxplot(subset_bees$bee~subset_bees$bin_biome)
+table(subset_bees$bin_biome)
 abline(h=0.5, col="red", lty=3)
 PMCMRplus::kwAllPairsConoverTest(x=subset_bees$bee,g=as.factor(subset_bees$bin_biome)) # non-significant difference
 #---------------------------------

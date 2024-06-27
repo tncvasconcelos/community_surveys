@@ -1,15 +1,31 @@
-
+# rm(list=ls())
+setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
+source("00_utility.R")
 
 #---------------------------------
 # Extracting climate and altitude medians per ecoregion
+
+# Predictors with spatial autocorrelation correction
+
 bio <- raster::getData('worldclim', var='bio', res=2.5) # 19 worldclim vars
 alt <- raster::getData('worldclim', var='alt', res=2.5) # altitude
-ai <- raster("layers/alt.bil")
+ai <- raster("layers/ai_v3_yr.tif")
 npp <- raster("layers/MOD17A3H_Y_NPP_2023-01-01_rgb_720x360.TIFF")
+prop_bee_angios <- raster("layers/prop_raster.tif")
+
+# Load data on community surveys:
+all_surveys <- read.csv("data/community_studies_20Jun2024.csv")
+
+#---------------------------------
+# Subset dataset for surveys with bees (before we standartize dataset?)
+subset_bees <- subset(all_surveys, all_surveys$bee!="")
+subset_bees <- subset(subset_bees, !grepl("did", subset_bees$bee))
+subset_bees$bee <- as.numeric(subset_bees$bee)
+coordinates <- subset_bees[,c("latitude","longitude")]
 
 points=coordinates
-layers=c(bio[[1]],bio[[12]],alt, ai, npp)
-names(layers) <- c("temperature", "precipitation","altitude","ai","npp")
+layers=c(bio[[1]],bio[[12]],alt, ai, npp, prop_bee_angios)
+names(layers) <- c("temperature", "precipitation","altitude","ai","npp", "prop_bee_angios")
 for(layer_index in 1:length(layers)) {
   layer <- layers[[layer_index]]
   medians <- c()
@@ -27,8 +43,11 @@ for(layer_index in 1:length(layers)) {
   coordinates <- cbind(coordinates, medians)
   colnames(coordinates)[2+layer_index] <- names(layers)[layer_index]
 }
-all_surveys <- cbind(all_surveys,coordinates[,3:7])
+all_surveys <- cbind(all_surveys,coordinates[,3:8])
 
 #---------------------------------
-# Subset dataset only for surveys with bees (TEMPORARY BEFORE WE STANDARTIZE DATASET)
-subset_bees <- subset(all_surveys, !is.na(all_surveys$bee))
+
+plot(all_surveys$bee,all_surveys$prop_bee_angios) 
+
+
+
