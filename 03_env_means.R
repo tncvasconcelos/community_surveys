@@ -46,8 +46,34 @@ for(layer_index in 1:length(layers)) {
 all_surveys <- cbind(all_surveys,coordinates[,3:8])
 
 #---------------------------------
-
-plot(all_surveys$bee,all_surveys$prop_bee_angios) 
-
-
+# Scatterplots:
+results_div <- matrix(nrow=0, ncol=4)
+for(i in names(layers)) {
+  one_var <- all_surveys[,i]
+  one_model_cor <- lm(all_surveys$bee~one_var)
+  r.sq <- round(summary(one_model_cor)$r.squared,3)
+  p <- round(unname(summary(one_model_cor)$coefficients[,4][2]),3)
+  slope <- unname(summary(one_model_cor)$coefficients[,1][2])
+  slope <- ifelse(slope>0,"+","-")
+  n_points <- length(one_model_cor$residuals) 
+  
+  # Plots:
+  pdf(paste0("plots/correlation_bee_prop_",i,".pdf"))
+  par(mar=c(3,2,1,0.5))
+  par(lwd=.3)
+  plot(all_surveys$bee~one_var, bty="n", pch=21, bg="grey", xaxt="n", yaxt="n",xlab="", ylab="",  cex=1, lwd=0.5)
+  # adding axes
+  par(lwd=.6)
+  axis(side=1, tick = TRUE, line = 0, lwd = .4, cex.axis=.6, tcl=NA, mgp=c(0,0.1,0),las=1, cex.lab=.4)
+  axis(side=2, tick = TRUE, line = 0, lwd = .4, cex.axis=.6, tcl=NA, mgp=c(2.5,0.2,0),las=1)
+  
+  mtext(text=paste0(i), side=1, line=1, cex=.5)
+  par(las=0)
+  mtext(text="proportion of species with bee flowers", side=2, line=1.5, cex=.5)
+  par(lwd=.5)
+  abline(one_model_cor)
+  dev.off()
+  results_div <- rbind(results_div,c(i, r.sq, p, slope))
+}
+write.csv(results_div, "results_div.csv", row.names = F)
 

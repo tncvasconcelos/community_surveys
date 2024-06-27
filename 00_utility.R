@@ -6,6 +6,7 @@ library(maptools)
 library(ggplot2)
 library(rnaturalearth)
 library(PMCMRplus)
+library(stars)
 data("wrld_simpl")
 
 
