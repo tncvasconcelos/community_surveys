@@ -75,5 +75,7 @@ for(i in names(layers)) {
   dev.off()
   results_div <- rbind(results_div,c(i, r.sq, p, slope))
 }
-write.csv(results_div, "results_div.csv", row.names = F)
+results_div <- as.data.frame(results_div)
+colnames(results_div) <- c("variable","r^2","p","slope")
+write.csv(results_div, "results_cor.csv", row.names = F)
 
