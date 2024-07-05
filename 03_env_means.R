@@ -49,14 +49,27 @@ all_surveys <- cbind(all_surveys,coordinates[,3:8])
 # Scatterplots:
 results_div <- matrix(nrow=0, ncol=4)
 for(i in names(layers)) {
-  one_var <- all_surveys[,i]
-  one_model_cor <- lm(all_surveys$bee~one_var)
-  r.sq <- round(summary(one_model_cor)$r.squared,3)
-  p <- round(unname(summary(one_model_cor)$coefficients[,4][2]),3)
-  slope <- unname(summary(one_model_cor)$coefficients[,1][2])
-  slope <- ifelse(slope>0,"+","-")
-  n_points <- length(one_model_cor$residuals) 
+  #one_var <- all_surveys[,i]
+  # one_model_cor <- lm(all_surveys$bee~one_var)
+  # r.sq <- round(summary(one_model_cor)$r.squared,3)
+  # p <- round(unname(summary(one_model_cor)$coefficients[,4][2]),3)
+  # slope <- unname(summary(one_model_cor)$coefficients[,1][2])
+  # slope <- ifelse(slope>0,"+","-")
+  # n_points <- length(one_model_cor$residuals) 
+  ### spatial autocorrelation
   
+  # Define the model formula
+  formula <- as.formula(paste("bee", "~", i))
+  
+  # Fit the spatial autoregressive model
+  model <- gls(
+    model = formula,
+    data = all_surveys,
+    correlation = corSpher(form = ~ longitude + latitude, nugget = TRUE),
+    method = "ML"
+  )
+  
+
   # Plots:
   pdf(paste0("plots/correlation_bee_prop_",i,".pdf"))
   par(mar=c(3,2,1,0.5))
