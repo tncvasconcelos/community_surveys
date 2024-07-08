@@ -13,12 +13,12 @@ twgd_data01 <- sf::st_as_sf(twgd_data)
 twgd_data01 <- subset(twgd_data01 , twgd_data01$LEVEL1_COD%in%c(7,8))
 
 # Load data on community surveys:
-all_surveys <- read.csv("data/community_studies_20Jun2024.csv")
+subset_bees <- read.csv("data/community_studies_5Jul2024.csv")
 #---------------------------------
 # Subset dataset for surveys with bees (before we standartize dataset?)
-subset_bees <- subset(all_surveys, all_surveys$bee!="")
-subset_bees <- subset(subset_bees, !grepl("did", subset_bees$bee))
-subset_bees$bee <- as.numeric(subset_bees$bee)
+# subset_bees <- subset(all_surveys, all_surveys$bee!="")
+# subset_bees <- subset(subset_bees, !grepl("did", subset_bees$bee))
+# subset_bees$bee <- as.numeric(subset_bees$bee)
 
 #---------------------------------
 # Plot map
@@ -54,8 +54,9 @@ ggplot(subset_bees, aes(x = biome, y = bee, fill = biome)) +
   ylab("proportion of species with bee flowers")
 dev.off()
 
+#--------------------------------- 
 #---------------------------------
-# binarizing biome type:
+# Binarizing biome type:
 closed_canopy <- c("Tropical & Subtropical Moist Broadleaf Forests", "Tropical & Subtropical Dry Broadleaf Forests", "Tropical & Subtropical Coniferous Forests", "Temperate Broadleaf & Mixed Forests", "Temperate Conifer Forests", "Boreal Forests/Taiga")
 open_canopy <- c("Tropical & Subtropical Grasslands, Savannas & Shrubland", "Temperate Grasslands, Savannas & Shrublands", "Flooded Grasslands & Savannas", "Montane Grasslands & Shrublands", "Tundra","Deserts & Xeric Shrublands", "Mediterranean Forests, Woodlands & Scrub",  "Mangroves")
 subset_bees$bin_biome <- unlist(ifelse(subset_bees$biome%in%closed_canopy, "closed","open"))
@@ -65,11 +66,27 @@ boxplot(subset_bees$bee~subset_bees$bin_biome)
 table(subset_bees$bin_biome)
 abline(h=0.5, col="red", lty=3)
 PMCMRplus::kwAllPairsConoverTest(x=subset_bees$bee,g=as.factor(subset_bees$bin_biome)) # non-significant difference
+
+#--------------------------------- 
 #---------------------------------
-                              
+# Binarizing tropical vs. temperate:
+tropical <- which(subset_bees$latitude > -23 & subset_bees$latitude < 23) 
+temperate <- which(subset_bees$latitude <= -23 | subset_bees$latitude >= 23) 
+subset_bees$tropical <- NA
+subset_bees$tropical[tropical] <- "tropical"
+subset_bees$tropical[temperate] <- "temperate"
+#---------------------------------
+# Comparing tropics vs. temperate zones
+boxplot(subset_bees$bee~subset_bees$tropical)
+abline(h=0.5, col="red", lty=3)
+PMCMRplus::kwAllPairsConoverTest(x=subset_bees$bee,g=as.factor(subset_bees$tropical)) # non-significant difference
+
+#--------------------------------- 
+#--------------------------------- 
 # By type of data (observation vs. syndrome)
 boxplot(subset_bees$bee~subset_bees$data_type)
 abline(h=0.5, col="red", lty=3)
 PMCMRplus::kwAllPairsConoverTest(x=subset_bees$bee,g=as.factor(subset_bees$data_type))
-#
+#---------------------------------
 
+write.csv(subset_bees, "data/community_studies_w_habitat_categories.csv", row.names=F)

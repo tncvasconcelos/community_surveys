@@ -1,12 +1,13 @@
 # rm(list=ls())
 setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
+library(nlme)
 source("00_utility.R")
 
 #---------------------------------
 # Extracting climate and altitude medians per ecoregion
 
-# Predictors with spatial autocorrelation correction
 
+# Predictors with spatial autocorrelation correction
 bio <- raster::getData('worldclim', var='bio', res=2.5) # 19 worldclim vars
 alt <- raster::getData('worldclim', var='alt', res=2.5) # altitude
 ai <- raster("layers/ai_v3_yr.tif")
@@ -14,7 +15,7 @@ npp <- raster("layers/MOD17A3H_Y_NPP_2023-01-01_rgb_720x360.TIFF")
 prop_bee_angios <- raster("layers/prop_raster.tif")
 
 # Load data on community surveys:
-all_surveys <- read.csv("data/community_studies_20Jun2024.csv")
+all_surveys <- read.csv("data/community_studies_w_habitat_categories.csv")
 
 #---------------------------------
 # Subset dataset for surveys with bees (before we standartize dataset?)
@@ -45,30 +46,36 @@ for(layer_index in 1:length(layers)) {
 }
 all_surveys <- cbind(all_surveys,coordinates[,3:8])
 
+write.csv(all_surveys, "data/community_studies_w_habitat_categories_&_env_vars.csv", row.names=F)
+
+#---------------------------------
+# Removing studies in duplicated locations
+all_surveys <- subset(all_surveys, all_surveys$spatial_analyses=="keep")
+# all_surveys2<-all_surveys
+# all_surveys <- subset(all_surveys2, all_surveys2$biome=="")
 #---------------------------------
 # Scatterplots:
-results_div <- matrix(nrow=0, ncol=4)
+results_div <- matrix(nrow=0, ncol=3)
 for(i in names(layers)) {
-  #one_var <- all_surveys[,i]
-  # one_model_cor <- lm(all_surveys$bee~one_var)
-  # r.sq <- round(summary(one_model_cor)$r.squared,3)
-  # p <- round(unname(summary(one_model_cor)$coefficients[,4][2]),3)
-  # slope <- unname(summary(one_model_cor)$coefficients[,1][2])
-  # slope <- ifelse(slope>0,"+","-")
-  # n_points <- length(one_model_cor$residuals) 
-  ### spatial autocorrelation
-  
   # Define the model formula
   formula <- as.formula(paste("bee", "~", i))
   
   # Fit the spatial autoregressive model
-  model <- gls(
+  one_model_cor <- gls(
     model = formula,
     data = all_surveys,
     correlation = corSpher(form = ~ longitude + latitude, nugget = TRUE),
     method = "ML"
   )
+  summary(one_model_cor)
   
+  one_var <- all_surveys[,i]
+  # one_model_cor <- lm(all_surveys$bee~one_var)
+  # r.sq <- round(summary(one_model_cor)$r.squared,3)
+  p <- round(summary(one_model_cor)$tTable[2,4],3)
+  slope <- unname(summary(one_model_cor)$coefficients[2])
+  slope <- ifelse(slope>0,"+","-")
+  n_points <- length(one_model_cor$residuals)
 
   # Plots:
   pdf(paste0("plots/correlation_bee_prop_",i,".pdf"))
@@ -86,9 +93,12 @@ for(i in names(layers)) {
   par(lwd=.5)
   abline(one_model_cor)
   dev.off()
-  results_div <- rbind(results_div,c(i, r.sq, p, slope))
+  results_div <- rbind(results_div,c(i, p, slope))
 }
 results_div <- as.data.frame(results_div)
-colnames(results_div) <- c("variable","r^2","p","slope")
+colnames(results_div) <- c("variable","p","slope")
 write.csv(results_div, "results_cor.csv", row.names = F)
+
+
+
 
