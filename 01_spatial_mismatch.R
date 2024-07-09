@@ -1,6 +1,5 @@
 # rm(list=ls())
 setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
-
 source("00_utility.R")
 
 #bee <- read.csv("data/brazil_bee_sprich_state.csv")
@@ -89,6 +88,8 @@ tmp_map_prop <- ggplot(data = merged) +
   theme_classic() +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
 
+#merged$LEVEL3_NAM[which.max(merged$prop)]
+
 
 #-------------------------------------
 # Making a raster of proportion bee:angiosperms for correlation analyses
@@ -109,13 +110,14 @@ for(i in 1:nrow(prop_merged)){
 sp_rich_plot <- raster::calc(raster::stack(all_rasters), sum)
 writeRaster(sp_rich_plot, file="layers/prop_raster.tif")
 
-
+max(prop_merged$prop)
 # arranged by proportion of species data deficient or unassessed
-pdf("plots/spatial_mismatch.pdf", height=5, width=15)
+pdf("plots/spatial_mismatch.pdf", height=18, width=8)
 grid.arrange(tmp_map_plants, 
              tmp_map_bees,
              tmp_map_prop,
-             widths = c(1, 1, 1),
-             heights = 1,
-             nrow=1, ncol=3)
+             widths = 1,
+             heights = c(1, 1, 1),
+             nrow=3, ncol=1)
 dev.off()
+
