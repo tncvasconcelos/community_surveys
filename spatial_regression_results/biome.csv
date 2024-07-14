@@ -1,0 +1,13 @@
+"","Value","Std.Error","t-value","p-value"
+"(Intercept)",0.628981162319217,0.0922472829591354,6.81842480496526,0
+"biomeMediterranean Forests, Woodlands & Scrub",-0.226671664560979,0.198202545305304,-1.14363649675549,0.261
+"biomeMontane Grasslands & Shrublands",0.941881019866373,1.34326615053282,0.701187191751068,0.488
+"biomeTropical & Subtropical Dry Broadleaf Forests",-0.219745868052011,0.260815377449354,-0.842534171876738,0.405
+"biomeTropical & Subtropical Grasslands, Savannas & Shrubland",0.112075951561489,0.18578003838657,0.603272302744827,0.55
+"biomeTropical & Subtropical Moist Broadleaf Forests",-0.0915792901536794,0.139836700916764,-0.654901678552834,0.517
+"prop_bee_angios",-1.36177899311621,0.921602846250396,-1.47762021206499,0.149
+"biomeMediterranean Forests, Woodlands & Scrub:prop_bee_angios",2.15528154060941,1.6742986153356,1.28727427763978,0.207
+"biomeMontane Grasslands & Shrublands:prop_bee_angios",-16.5028780374878,20.2333646747214,-0.8156269756807,0.42
+"biomeTropical & Subtropical Dry Broadleaf Forests:prop_bee_angios",6.10888817554555,9.03252073131043,0.676321522780416,0.503
+"biomeTropical & Subtropical Grasslands, Savannas & Shrubland:prop_bee_angios",-2.98147318782014,3.91555691409132,-0.761442944958967,0.452
+"biomeTropical & Subtropical Moist Broadleaf Forests:prop_bee_angios",0.0401634608291677,3.31840965089515,0.0121032256576078,0.99
