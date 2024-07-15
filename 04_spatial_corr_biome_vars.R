@@ -50,4 +50,19 @@ mtext("(D)", side = 2, line = 2, at = 1+0.05, las = 1, cex = 1)
 abline(h=0.5, col="darkorange", lty=2, lwd=2)
 dev.off()
 
-
+#-------- regressions
+predictors_discrete <- c("bin_biome","super_biome","tropical","biome") # discrete
+results_discrete <- as.data.frame(matrix(ncol=4, nrow=length(predictors_discrete))) 
+colnames(results_discrete) <- c("predictor","p-value","r-squared","slope")
+plot_list <- list()
+for(i in 1:length(predictors_discrete)) {
+  formula <- as.formula(paste("bee", "~", predictors_discrete[i]))
+  if(predictors_discrete[i]=="biome") {
+    one_model_cor <- gls(model = formula, data = subset_biome_comparison,correlation = corSpher(form = ~ longitude + latitude, nugget = TRUE),method = "ML")
+  } else {
+    one_model_cor <- gls(model = formula,data = subset_bees,correlation = corSpher(form = ~ longitude + latitude, nugget = TRUE), method = "ML")    
+  }
+  coefs <- as.data.frame(coef(summary(one_model_cor)))
+  coefs$`p-value` <- round(coefs$`p-value`,3)
+  write.csv(coefs, paste0("spatial_regression_results/individual_",predictors_discrete[i],".csv"))
+}

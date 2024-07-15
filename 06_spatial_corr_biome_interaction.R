@@ -2,12 +2,15 @@
 setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
 source("00_utility.R")
 library(nlme)
+library(gridExtra)
+library(ggplot2)
 
 # Load data on community surveys:
 subset_bees <- read.csv("data/community_studies_w_habitat_categories_&_env_vars.csv")
 subset_bees$bee <- as.numeric(subset_bees$bee)
 coordinates <- subset_bees[,c("latitude","longitude")]
 subset_bees <- subset(subset_bees,subset_bees$spatial_analyses=="keep")
+subset_biome_comparison <- subset(subset_bees, subset_bees$biome %in% names(table(subset_bees$biome))[which(table(subset_bees$biome) > 2)])
 
 #-----------------------------------
 # Fit the spatial autoregressive model (interaction between predictor and prop bee flower)
