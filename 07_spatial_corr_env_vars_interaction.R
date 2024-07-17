@@ -12,11 +12,8 @@ subset_bees <- subset(subset_bees,subset_bees$spatial_analyses=="keep")
 
 # CONTINUOUS VARS
 predictors_cont <- c("temperature","temp_seasonality","precipitation","prec_seasonality","elevation","ai","npp")
-colnames(results_cont) <- c("predictor","p-value","r-squared","slope")
-pal <- hcl.colors(7, palette = "Viridis", alpha = 0.7)
-names(pal) <-  predictors_cont
-pdf("plots/cont_vars_cor_int.pdf", height=15, width=8)
-par(mar=c(2,4,1,1))
+pdf("plots/cont_vars_cor_int.pdf", height=12, width=8)
+par(mar=c(0.5,0.5,0.5,0.5))
 par(lwd=.3)
 par(mfrow=c(4,2))
 for(i in 1:length(predictors_cont)) {

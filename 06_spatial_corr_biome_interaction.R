@@ -50,8 +50,12 @@ for(i in 1:length(predictors_discrete)) {
     theme_minimal()
 }
 
-pdf("plots/discrete_interactions.pdf")
-for (i in 1:length(plot_list)) {
-  print(plot_list[[i]])
-}
+pdf("plots/discrete_interactions.pdf", height=15, width=6)
+grid.arrange(plot_list[[1]], 
+             plot_list[[2]],
+             plot_list[[3]],
+             plot_list[[4]],
+             widths = c(1),
+             heights= c(1,1,1,1),
+             nrow=4, ncol=1)
 dev.off()

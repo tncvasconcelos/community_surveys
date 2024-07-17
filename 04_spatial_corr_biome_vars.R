@@ -17,8 +17,10 @@ n_boxes <- c(5, 2.5, 3, 2.5)
 total_boxes <- sum(n_boxes)
 proportions <- n_boxes / total_boxes
 
-pdf("plots/habitat_boxplots.pdf",height=4, width=17)
+pdf("plots/habitat_boxplots.pdf",height=4, width=22)
 palette_name1 = "Viridis"
+par(cex.lab=1.5) 
+par(cex.axis=1.5) 
 layout(matrix(1:4, nrow = 1), widths = proportions)
 # for biome, exclude those with just one observation from ploting for main manuscript
 subset_biome_comparison <- subset(subset_bees, subset_bees$biome %in% names(table(subset_bees$biome))[which(table(subset_bees$biome) > 2)])
@@ -43,9 +45,9 @@ boxplot(subset_bees$bee~subset_bees$super_biome,
 mtext("(C)", side = 2, line = 2, at = 1+0.05, las = 1, cex = 1)
 abline(h=0.5, col="darkorange", lty=2, lwd=2)
 boxplot(subset_bees$bee~subset_bees$tropical,
-        xlab = "latitudinal zone", ylab = "proportion of bee flowers", ylim=c(0,1),
+        xlab = "latitudinal zone", ylab = "proportion of bee flowers", ylim=c(0,1), cex=3,
         col = hcl.colors(length(unique(subset_bees$tropical)), palette = palette_name1, alpha = 0.75),
-        names=c("temperate (n=16)","tropical (n=37)"), frame = T)
+        names=c("temperate \n (n=16)","tropical \n (n=37)"), frame = T)
 mtext("(D)", side = 2, line = 2, at = 1+0.05, las = 1, cex = 1)
 abline(h=0.5, col="darkorange", lty=2, lwd=2)
 dev.off()

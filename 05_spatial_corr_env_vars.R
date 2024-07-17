@@ -46,4 +46,4 @@ dev.off()
 write.csv(results, "spatial_regression_results/individual_cont_vars_summary.csv", row.names=F)
 
 
-write.csv(results, "all_results_spatial_regression_indv.csv", row.names = F)
+#write.csv(results, "all_results_spatial_regression_indv.csv", row.names = F)
