@@ -61,11 +61,21 @@ results <- read.csv("files_for_maps/sp_rich_table_bees_twgd_edit_melo2007.csv")
 # write.csv(twgd_data_bees, file="files_for_maps/sp_rich_table_bees_twgd.csv", row.names=F)
 
 twgd_data_bees <- merge(twgd_data01, results, by="LEVEL3_COD")
+twgd_data_bees <- twgd_data_bees[,c(1,8:12)]
 #twgd_data_bees <- subset(twgd_data_bees, twgd_data_bees$LEVEL3_NAM.x!="Greenland")
 
+#sf::st_write(twgd_data_bees, "bee_sprich.shp")
+#save(twgd_data_bees, file="bee_sprich.Rsave")
+load("bee_sprich.Rsave")
+
+bee_sp_rich <- maptools::readShapeSpatial("bee_rich/America_beerich.shp")
+bee_sp_rich <- sf::st_as_sf(bee_sp_rich)
+
+plot(bee_sp_rich)
+
 # Bee plot
-tmp_map_bees <- ggplot(data = twgd_data_bees) +
-  geom_sf(aes(fill = n_points)) +
+tmp_map_bees <- ggplot(data = bee_sp_rich) +
+  geom_sf(aes(fill = Total2)) +
   scale_fill_viridis_c(option = "C",alpha=0.9, trans="log", name="   bee species    ") +
   theme_classic() +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
