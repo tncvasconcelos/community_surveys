@@ -40,43 +40,41 @@ twgd_data_plants <- subset(twgd_data_plants , twgd_data_plants$LEVEL1_COD%in%c(7
 # Angiosperm plot
 tmp_map_plants <- ggplot(data = twgd_data_plants) +
   geom_sf(aes(fill = sp_rich)) +
-  scale_fill_viridis_c(option = "C", alpha=0.9, trans="log",name="angiosperm species") +
+  scale_fill_viridis_c(option = "C", alpha=0.9, name="a species") +
   theme_classic() +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
 
 #-----------------------------
 # BEES
-gbif_bees <- data.table::fread("OutputData/05_cleaned_database.csv") # from Dorey et al. 2023
-points <- gbif_bees[,c("scientificName","decimalLatitude","decimalLongitude")]
-colnames(points) <- c("species", "lat","lon")
-results <- organize.bubble.plot2(points, twgd_data)
-#write.csv(results, file="files_for_maps/sp_rich_table_bees.csv", row.names=F)
+# gbif_bees <- data.table::fread("OutputData/05_cleaned_database.csv") # from Dorey et al. 2023
+# points <- gbif_bees[,c("scientificName","decimalLatitude","decimalLongitude")]
+# colnames(points) <- c("species", "lat","lon")
+# results <- organize.bubble.plot2(points, twgd_data)
+# #write.csv(results, file="files_for_maps/sp_rich_table_bees.csv", row.names=F)
+# 
+# # Note: the following was editted to use numbers from melo2007 for the Neotropics
+# results <- read.csv("files_for_maps/sp_rich_table_bees_twgd_edit_melo2007.csv")
+# # results$area_name <- NA
+# # for(i in 1:nrow(results)){
+# #   results$area_name[i] <- as.character(twgd_data01$LEVEL3_NAM[as.character(twgd_data01$LEVEL3_COD)==results$one_area[i]])
+# # }
+# # write.csv(twgd_data_bees, file="files_for_maps/sp_rich_table_bees_twgd.csv", row.names=F)
+# 
+# twgd_data_bees <- merge(twgd_data01, results, by="LEVEL3_COD")
+# twgd_data_bees <- twgd_data_bees[,c(1,8:12)]
+# #twgd_data_bees <- subset(twgd_data_bees, twgd_data_bees$LEVEL3_NAM.x!="Greenland")
+# 
+# #sf::st_write(twgd_data_bees, "bee_sprich.shp")
+# #save(twgd_data_bees, file="bee_sprich.Rsave")
+# load("bee_sprich.Rsave")
 
-# Note: the following was editted to use numbers from melo2007 for the Neotropics
-results <- read.csv("files_for_maps/sp_rich_table_bees_twgd_edit_melo2007.csv")
-# results$area_name <- NA
-# for(i in 1:nrow(results)){
-#   results$area_name[i] <- as.character(twgd_data01$LEVEL3_NAM[as.character(twgd_data01$LEVEL3_COD)==results$one_area[i]])
-# }
-# write.csv(twgd_data_bees, file="files_for_maps/sp_rich_table_bees_twgd.csv", row.names=F)
-
-twgd_data_bees <- merge(twgd_data01, results, by="LEVEL3_COD")
-twgd_data_bees <- twgd_data_bees[,c(1,8:12)]
-#twgd_data_bees <- subset(twgd_data_bees, twgd_data_bees$LEVEL3_NAM.x!="Greenland")
-
-#sf::st_write(twgd_data_bees, "bee_sprich.shp")
-#save(twgd_data_bees, file="bee_sprich.Rsave")
-load("bee_sprich.Rsave")
-
-bee_sp_rich <- maptools::readShapeSpatial("bee_rich/America_beerich.shp")
-bee_sp_rich <- sf::st_as_sf(bee_sp_rich)
-
-plot(bee_sp_rich)
+bee_sp_rich <- maptools::readShapeSpatial("bee_rich/America_beerich.shp") # shapefile sent by Alice Hughes
+twgd_data_bees <- sf::st_as_sf(bee_sp_rich)
 
 # Bee plot
-tmp_map_bees <- ggplot(data = bee_sp_rich) +
+tmp_map_bees <- ggplot(data = twgd_data_bees) +
   geom_sf(aes(fill = Total2)) +
-  scale_fill_viridis_c(option = "C",alpha=0.9, trans="log", name="   bee species    ") +
+  scale_fill_viridis_c(option = "C",alpha=0.9, name="b species") +
   theme_classic() +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
 
@@ -94,7 +92,7 @@ for(i in 1:nrow(twgd_data_plants)) {
 
 tmp_map_prop <- ggplot(data = merged) +
   geom_sf(aes(fill = prop)) +
-  scale_fill_viridis_c(option = "C",alpha=0.9, trans="log", name="bee:angio species ") +
+  scale_fill_viridis_c(option = "C",alpha=0.9,  name="b:a specis") +
   theme_classic() +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
 
@@ -116,11 +114,12 @@ for(i in 1:nrow(prop_merged)){
   r3 <- raster::resample(r3, template)
   r3[is.na(r3)] <- 0
   all_rasters[[i]] <- raster::mask(r3, template)
+  cat(i, "\r")
 }
 sp_rich_plot <- raster::calc(raster::stack(all_rasters), sum)
-writeRaster(sp_rich_plot, file="layers/prop_raster.tif")
+writeRaster(sp_rich_plot, file="layers/prop_raster.tif",overwrite=TRUE)
 
-max(prop_merged$prop)
+# min(prop_merged$prop)
 # arranged by proportion of species data deficient or unassessed
 pdf("plots/spatial_mismatch.pdf", height=18, width=8)
 grid.arrange(tmp_map_plants, 

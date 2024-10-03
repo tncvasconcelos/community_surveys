@@ -17,8 +17,8 @@ prop_bee_angios <- raster("layers/prop_raster.tif")
 coordinates <- all_surveys[,c("latitude","longitude")]
 
 points <- coordinates
-layers <- c(bio$bio1, bio$bio4, bio$bio12, bio$bio15, ai, npp, prop_bee_angios)
-names(layers) <- c("temperature","temp_seasonality", "precipitation","prec_seasonality","ai","npp", "prop_bee_angios")
+layers <- c(as.list(bio), ai, npp, prop_bee_angios)
+names(layers) <- c(names(bio),"ai","npp", "prop_bee_angios")
 for(layer_index in 1:length(layers)) {
   layer <- layers[[layer_index]]
   medians <- c()
@@ -87,4 +87,4 @@ all_surveys$tropical[tropical] <- "tropical"
 all_surveys$tropical[temperate] <- "temperate"
 
 #--------------------------------- 
-write.csv(all_surveys, "data/community_studies_w_habitat_categories_&_env_vars.csv", row.names=F)
+saveRDS(all_surveys, "data/community_studies_w_habitat_categories_&_env_vars.Rdata")

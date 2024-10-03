@@ -1,23 +1,24 @@
 # rm(list=ls())
 setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
 source("00_utility.R")
-library(nlme)
 
 ########################################################
 # Plots to visually inspect data on community surveys #
 ########################################################
-path="TWDG/wgsrpd-master/level3/level3.shp"
-#-----------------------------
-twgd_data <- maptools::readShapeSpatial(path)
-twgd_data01 <- sf::st_as_sf(twgd_data)
-twgd_data01 <- subset(twgd_data01 , twgd_data01$LEVEL1_COD%in%c(7,8))
-
 # Load data on community surveys:
 subset_bees <- read.csv("data/community_studies_w_habitat_categories_&_env_vars.csv")
 subset_bees$bee <- as.numeric(subset_bees$bee)
 coordinates <- subset_bees[,c("latitude","longitude")]
 subset_bees <- subset(subset_bees,subset_bees$spatial_analyses=="keep")
-#---------------------------------
+subset_bees <- subset(subset_bees, subset_bees$bee!=0)
+
+#-----------------------------
+# Botanical countries
+path="TWDG/wgsrpd-master/level3/level3.shp"
+twgd_data <- maptools::readShapeSpatial(path)
+twgd_data01 <- sf::st_as_sf(twgd_data)
+twgd_data01 <- subset(twgd_data01 , twgd_data01$LEVEL1_COD%in%c(7,8))
+
 # Plot map of community surveys
 pdf("plots/map_surveys.pdf")
 map_surveys <- ggplot() +  geom_sf(data = twgd_data01, fill = "white", color = "black", lwd=0.1, alpha=0.5) +  # White map background with black outlines
@@ -28,6 +29,92 @@ map_surveys <- ggplot() +  geom_sf(data = twgd_data01, fill = "white", color = "
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
 map_surveys
 dev.off()
+
+#-----------------------------
+# WWF biomes
+biomes <- WWFload()
+biomes <- sf::st_as_sf(biomes)
+
+biomes <- subset(biomes, biomes$REALM%in%c("NA","NT"))
+
+# Load required libraries
+library(sf)
+library(dplyr)
+
+# Assuming `biomes` is already your sf object
+# Merge geometries based on the 'Biome' column
+merged_biomes <- biomes %>%
+  group_by(BIOME) %>%  # Group by the 'Biome' column
+  summarise(geometry = st_union(geometry), .groups = "drop")  # Merge geometries
+
+merged_biomes$BIOME[1:14] <- c("Tropical & Subtropical Moist Broadleaf Forests", 
+                                         "Tropical & Subtropical Dry Broadleaf Forests", 
+                                         "Tropical & Subtropical Coniferous Forests", 
+                                         "Temperate Broadleaf & Mixed Forests", 
+                                         "Temperate Conifer Forests", 
+                                         "Boreal Forests/Taiga", 
+                                         "Tropical & Subtropical Grasslands, Savannas & Shrubland", 
+                                         "Temperate Grasslands, Savannas & Shrublands", 
+                                         "Flooded Grasslands & Savannas", 
+                                         "Montane Grasslands & Shrublands", 
+                                         "Tundra", 
+                                         "Mediterranean Forests, Woodlands & Scrub", 
+                                         "Deserts & Xeric Shrublands", 
+                                         "Mangroves")
+
+# Plot map of community surveys
+# Define a color palette for biomes
+biome_colors <- c(
+  "Tropical & Subtropical Moist Broadleaf Forests" = "#006400",  
+  "Tropical & Subtropical Dry Broadleaf Forests" = "#8B4513",
+  "Tropical & Subtropical Coniferous Forests" = "#228B22",
+  "Temperate Broadleaf & Mixed Forests" = "#32CD32",
+  "Temperate Conifer Forests" = "#2E8B57",
+  "Boreal Forests/Taiga" = "#556B2F",
+  "Tropical & Subtropical Grasslands, Savannas & Shrubland" = "#FFD700",
+  "Temperate Grasslands, Savannas & Shrublands" = "#DAA520",
+  "Flooded Grasslands & Savannas" = "#87CEEB",
+  "Montane Grasslands & Shrublands" = "#BDB76B",
+  "Tundra" = "#D3D3D3",
+  "Mediterranean Forests, Woodlands & Scrub" = "#FF8C00",
+  "Deserts & Xeric Shrublands" = "#DEB887",
+  "Mangroves" = "#4682B4"
+)
+
+#biome_colors <- hcl.colors(16, palette = "Inferno", alpha = 1)
+
+
+# Convert subset_bees to sf object
+subset_bees_sf <- st_as_sf(subset_bees, coords = c("longitude", "latitude"), crs = st_crs(merged_biomes))
+
+# Perform spatial join to assign biomes to each point
+subset_bees_sf <- st_join(subset_bees_sf, merged_biomes, join = st_intersects)
+
+# Now 'subset_bees_sf' should have a 'BIOME' column from 'merged_biomes'
+
+# Check for NA values in the BIOME column after join
+subset_bees_sf <- subset_bees_sf[!is.na(subset_bees_sf$BIOME), ]
+
+
+# Plot map with matching colors for biomes and points
+map_biomes_points <- ggplot() +  
+  geom_sf(data = merged_biomes, aes(fill = as.factor(BIOME)), color = c(biome_colors,"grey","grey"), lwd = 0.05, alpha = 0.4) +  # Biome polygons
+  geom_point(data = subset_bees_sf, aes(x = st_coordinates(subset_bees_sf)[,1], 
+                                        y = st_coordinates(subset_bees_sf)[,2], 
+                                        size = bee, fill = as.factor(BIOME)), 
+             color = "black", alpha = 0.6, shape = 21) +  # Points with size and fill by biome
+  scale_fill_manual(values = biome_colors, name = "Biome") +  # Matching colors
+  scale_size_continuous(name = "Number of Bees", range = c(1, 8)) +  # Scale size of points
+  labs(title = "", 
+       x = "Longitude", y = "Latitude") +  # Title and labels
+  theme_minimal(base_size = 14) +  # Improved theme
+  coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE) +
+  theme(legend.position = "right", 
+        legend.key.width = unit(1, "cm"), 
+        plot.title = element_text(hjust = 0.5, face = "bold"))  # Center the title
+
+# Save plot
+ggsave("plots/map_biomes_bees.pdf", plot = map_biomes_points, width = 12, height = 19)
 
 #--------------------------------- 
 # By type of data (observation vs. syndrome)
