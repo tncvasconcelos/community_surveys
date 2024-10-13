@@ -8,9 +8,11 @@ subset_bees <- read.csv("data/community_studies_w_habitat_categories_&_env_vars.
 subset_bees$bee <- as.numeric(subset_bees$bee)
 coordinates <- subset_bees[,c("latitude","longitude")]
 subset_bees <- subset(subset_bees,subset_bees$spatial_analyses=="keep")
+subset_bees <- subset(subset_bees,!is.na(subset_bees$prop_bee_angios))
+
 #-----------------------------------
 # Fit the spatial autoregressive model (individual predictors, environmental variables)
-predictors <- c("temperature","temp_seasonality","precipitation","prec_seasonality","elevation","ai","npp","prop_bee_angios") 
+predictors <- c("bio1","bio4","bio5","bio6","bio12","bio15","bio16","bio17","prop_bee_angios", "wind.1","srad","et0")
 results <- as.data.frame(matrix(ncol=4, nrow=length(predictors))) 
 colnames(results) <- c("predictor","p-value","r-squared","slope")
 pal <- hcl.colors(length(predictors), palette = "Viridis", alpha = 0.7)

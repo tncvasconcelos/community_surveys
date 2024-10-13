@@ -12,13 +12,17 @@ bio <- raster::getData('worldclim', var='bio', res=2.5) # 19 worldclim vars
 ai <- raster("layers/ai_v3_yr.tif")
 npp <- raster("layers/MOD17A3H_Y_NPP_2023-01-01_rgb_720x360.TIFF")
 prop_bee_angios <- raster("layers/prop_raster.tif")
+wind <- raster("layers/mean_wind.tif")
+srad <- raster("layers/mean_srad.tif")
+et0 <- raster("layers/et0_v3_yr.tif")
 
 #---------------------------------
 coordinates <- all_surveys[,c("latitude","longitude")]
 
 points <- coordinates
-layers <- c(as.list(bio), ai, npp, prop_bee_angios)
-names(layers) <- c(names(bio),"ai","npp", "prop_bee_angios")
+layers <- c(as.list(bio), ai, npp, prop_bee_angios, wind, srad, et0)
+names(layers) <- c(names(bio),"ai","npp", "prop_bee_angios","wind","srad","et0")
+
 for(layer_index in 1:length(layers)) {
   layer <- layers[[layer_index]]
   medians <- c()
@@ -29,6 +33,13 @@ for(layer_index in 1:length(layers)) {
     crs(one_point) <- "+proj=longlat +datum=WGS84 +no_defs"
     buffered_point <- buffer(one_point, width = 10000)
     values <- raster::extract(layer, buffered_point)
+    if(names(layers)[layer_index]=="prop_bee_angios") {
+      if(length(values[[1]])==1 && values[[1]][1]==0) { #increase buffer 
+        buffered_point <- buffer(one_point, width = 50000)
+        values <- raster::extract(layer, buffered_point)
+      }
+      values[[1]] <- subset(values[[1]], values[[1]]!=0)
+    }
     values <- subset(values[[1]], !is.na(values[[1]]))
     one_median <- median(values)
     medians <- c(medians, one_median)
@@ -86,5 +97,7 @@ all_surveys$tropical <- NA
 all_surveys$tropical[tropical] <- "tropical"
 all_surveys$tropical[temperate] <- "temperate"
 
+
 #--------------------------------- 
 saveRDS(all_surveys, "data/community_studies_w_habitat_categories_&_env_vars.Rdata")
+write.csv(all_surveys, "data/community_studies_w_habitat_categories_&_env_vars.csv")
