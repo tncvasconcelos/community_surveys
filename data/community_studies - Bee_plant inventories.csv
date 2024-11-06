@@ -1,0 +1,21 @@
+study_number,Area_name,Country,Latitude,Longitude,bee_sp_rich,fl_plant_sp_rich
+1,Parque Estadual de Vila Velha,"PR, Brazil",-25,-50,222,1355
+2,ES George Reserve,"MI, USA",42.4456,-84.01,167,837
+3,Reserva Ecologica do IBGE,"DF, Brazil",-15.9447,-47.8853,175,1798
+4,Estacao Ecologica do Serido,"RN, Brazil",-6.6045,-37.3217,100,332
+5,Reserva Biologica Guaribas,"PB, Brazil",-6.0667,-35.1167,114,603
+6,Parque Estadual da Serra do Tabuleiro,"SC, Brazil",-28.1694445,-48.8702778,64,429
+7,Parque Estadual do Cerrado,"PR, Brazil",-24.15,-50.3,286,458
+8,Reserva Biologica El Triunfo,Mexico,15.6408,-92.7275,228,2000
+9,Reserva Universitaria Escuela Granja,Argentina,-31.33,-60.66,50,329
+10,Reserva Natural Punta Lara,Argentina,-34.7633,-57.9964,60,800
+11,Schipstern Nature Reserve,Belize,18.3176,-88.1919,43,266
+12,Pinnacles National Park,USA,36.4915,-121.1972,450,635
+13,Grand Staircase-Escalante National Monument,USA,37.3,111.7,660,1003
+14,Barro Colorado Island,Panama,9.151,-79.8463,76,1515
+15,Carlsbad Caverns National Park,USA,32.1479,-104.5567,364,1076
+16,Movaje National Preserve,USA,35.0126,-115.4754,305,882
+17,Indiana Dunes National Parl,USA,41.6533,-87.0524,204,1100
+18,Black Rock Forest Preserve,USA,41.4142,-74.0085,144,684
+19,Archbold Biological Station,USA,27.1847,-81.3493,113,470
+20,Yosemite National Park,USA,37.8651,-119.5383,554,1510
