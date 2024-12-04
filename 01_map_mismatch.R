@@ -71,6 +71,11 @@ tmp_map_plants <- ggplot(data = twgd_data_plants) +
 bee_sp_rich <- maptools::readShapeSpatial("bee_rich/America_beerich.shp") # shapefile sent by Alice Hughes
 twgd_data_bees <- sf::st_as_sf(bee_sp_rich)
 
+# df_bees <- as.data.frame(twgd_data_bees)
+# df_bees <- df_bees[,c("LEVEL3_COD","Total2",
+#                       "lon","lat","area_name")]
+# write.csv(df_bees, file="files_for_maps/sp_rich_bee.csv", row.names = F)
+
 # Bee plot
 tmp_map_bees <- ggplot(data = twgd_data_bees) +
   geom_sf(aes(fill = Total2)) +
