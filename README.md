@@ -43,7 +43,6 @@ Scripts:
 
 > 00_utility.R
 
-Functions that can be sourced to perform tasks in other scripts.
 
 > 01_map_mismatch.R
 
