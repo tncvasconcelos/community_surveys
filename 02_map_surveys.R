@@ -37,6 +37,7 @@ biomes <- sf::st_as_sf(biomes)
 
 biomes <- subset(biomes, biomes$REALM%in%c("NA","NT"))
 
+
 # Load required libraries
 library(sf)
 library(dplyr)
@@ -63,6 +64,8 @@ merged_biomes$BIOME[1:14] <- c("Tropical & Subtropical Moist Broadleaf Forests",
                                          "Mangroves")
 
 # Plot map of community surveys
+table(subset_bees$biome)
+
 # Define a color palette for biomes
 biome_colors <- c(
   "Tropical & Subtropical Moist Broadleaf Forests" = "#006400",  
@@ -70,19 +73,34 @@ biome_colors <- c(
   "Tropical & Subtropical Coniferous Forests" = "#228B22",
   "Temperate Broadleaf & Mixed Forests" = "#32CD32",
   "Temperate Conifer Forests" = "#2E8B57",
-  "Boreal Forests/Taiga" = "#556B2F",
+  "Boreal Forests/Taiga" = "white",
   "Tropical & Subtropical Grasslands, Savannas & Shrubland" = "#FFD700",
   "Temperate Grasslands, Savannas & Shrublands" = "#DAA520",
-  "Flooded Grasslands & Savannas" = "#87CEEB",
+  "Flooded Grasslands & Savannas" = "white",
   "Montane Grasslands & Shrublands" = "#BDB76B",
-  "Tundra" = "#D3D3D3",
+  "Tundra" = "white",
   "Mediterranean Forests, Woodlands & Scrub" = "#FF8C00",
   "Deserts & Xeric Shrublands" = "#DEB887",
   "Mangroves" = "#4682B4"
 )
 
-#biome_colors <- hcl.colors(16, palette = "Inferno", alpha = 1)
-
+biome_colors <- hcl.colors(14, palette = "Terrain", alpha = 0.5)
+biome_colors <- c(
+  "Boreal Forests/Taiga" = biome_colors[1],
+  "Deserts & Xeric Shrublands" = biome_colors[2],
+  "Flooded Grasslands & Savannas" = biome_colors[3],
+  "Mangroves" = biome_colors[4],
+  "Mediterranean Forests, Woodlands & Scrub" = biome_colors[5],
+  "Montane Grasslands & Shrublands" = biome_colors[6],
+  "Temperate Broadleaf & Mixed Forests" = biome_colors[7],
+  "Temperate Conifer Forests" = biome_colors[8],
+  "Temperate Grasslands, Savannas & Shrublands" = biome_colors[9],
+  "Tropical & Subtropical Coniferous Forests" = biome_colors[10],
+  "Tropical & Subtropical Dry Broadleaf Forests" = biome_colors[11],
+  "Tropical & Subtropical Grasslands, Savannas & Shrubland" = biome_colors[12],
+  "Tropical & Subtropical Moist Broadleaf Forests" = biome_colors[13],  
+  "Tundra" = biome_colors[14]
+)
 
 # Convert subset_bees to sf object
 subset_bees_sf <- st_as_sf(subset_bees, coords = c("longitude", "latitude"), crs = st_crs(merged_biomes))
@@ -95,10 +113,9 @@ subset_bees_sf <- st_join(subset_bees_sf, merged_biomes, join = st_intersects)
 # Check for NA values in the BIOME column after join
 subset_bees_sf <- subset_bees_sf[!is.na(subset_bees_sf$BIOME), ]
 
-
 # Plot map with matching colors for biomes and points
 map_biomes_points <- ggplot() +  
-  geom_sf(data = merged_biomes, aes(fill = as.factor(BIOME)), color = c(biome_colors,"grey","grey"), lwd = 0.05, alpha = 0.4) +  # Biome polygons
+  geom_sf(data = merged_biomes, aes(fill = as.factor(BIOME)), color = "black", lwd = 0.05, alpha = 0.4) +  # Biome polygons
   geom_point(data = subset_bees_sf, aes(x = st_coordinates(subset_bees_sf)[,1], 
                                         y = st_coordinates(subset_bees_sf)[,2], 
                                         size = bee, fill = as.factor(BIOME)), 
@@ -106,15 +123,15 @@ map_biomes_points <- ggplot() +
   scale_fill_manual(values = biome_colors, name = "Biome") +  # Matching colors
   scale_size_continuous(name = "Number of Bees", range = c(1, 8)) +  # Scale size of points
   labs(title = "", 
-       x = "Longitude", y = "Latitude") +  # Title and labels
-  theme_minimal(base_size = 14) +  # Improved theme
+       x = "Longitude", y = "Latitude") +  
+  theme_classic(base_size = 14) +  
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE) +
   theme(legend.position = "right", 
         legend.key.width = unit(1, "cm"), 
         plot.title = element_text(hjust = 0.5, face = "bold"))  # Center the title
 
 # Save plot
-ggsave("plots/map_biomes_bees.pdf", plot = map_biomes_points, width = 12, height = 19)
+ggsave("plots/map_biomes_bees2.pdf", plot = map_biomes_points, width = 12, height = 19)
 
 #--------------------------------- 
 # By type of data (observation vs. syndrome)

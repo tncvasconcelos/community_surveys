@@ -8,10 +8,12 @@ all_surveys <- read.csv("data/community_studies_5Jul2024.csv")
 #---------------------------------
 # Extracting climate and altitude medians per ecoregion
 bio <- raster::getData('worldclim', var='bio', res=2.5) # 19 worldclim vars
+
 #alt <- raster::getData('worldclim', var='alt', res=2.5) # altitude
 ai <- raster("layers/ai_v3_yr.tif")
 npp <- raster("layers/MOD17A3H_Y_NPP_2023-01-01_rgb_720x360.TIFF")
 prop_bee_angios <- raster("layers/prop_raster.tif")
+bee_rich <- raster("layers/bee_rich.tif")
 wind <- raster("layers/mean_wind.tif")
 srad <- raster("layers/mean_srad.tif")
 et0 <- raster("layers/et0_v3_yr.tif")
@@ -20,8 +22,8 @@ et0 <- raster("layers/et0_v3_yr.tif")
 coordinates <- all_surveys[,c("latitude","longitude")]
 
 points <- coordinates
-layers <- c(as.list(bio), ai, npp, prop_bee_angios, wind, srad, et0)
-names(layers) <- c(names(bio),"ai","npp", "prop_bee_angios","wind","srad","et0")
+layers <- c(as.list(bio), ai, npp, prop_bee_angios, bee_rich, wind, srad, et0)
+names(layers) <- c(names(bio),"ai","npp", "prop_bee_angios","bee_rich","wind","srad","et0")
 
 for(layer_index in 1:length(layers)) {
   layer <- layers[[layer_index]]

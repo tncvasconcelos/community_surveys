@@ -30,7 +30,8 @@ vioplot(subset_biome_comparison$bee ~ subset_biome_comparison$biome,
         xlab = "biome type", ylab = "proportion of bee flowers", ylim=c(0,1),
         col = hcl.colors(length(unique(subset_biome_comparison$biome)), palette = palette_name1, alpha = 0.75),
         names=c("desert \n (n=6)","mediterranean \n (n=5)","montane \n grasslands \n (n=5)","temperate \n conifer forests \n (n=2)",
-              "tropical \n dry forest \n (n=4)","tropical \n savannas \n (n=16)","tropical \n rainforest \n (n=11)"))
+              "tropical \n dry forest \n (n=4)","tropical \n savannas \n (n=16)","tropical \n rainforest \n (n=11)"),)
+
 mtext("(A)", side = 2, line = 2, at = 1 + 0.05, las = 1, cex = 0.8)
 abline(h = 0.5, col = "darkorange", lty = 2, lwd = 2)
 
