@@ -2,17 +2,21 @@ library(sf)
 library(gridExtra)
 library(sp)
 library(raster)
-library(maptools)
+#library(maptools)
 library(ggplot2)
 library(rnaturalearth)
+library("rnaturalearthdata")
 library(PMCMRplus)
 library(stars)
-data("wrld_simpl")
+library(geodata)
+library(terra)
+#data("wrld_simpl") #from maptools, not working, using the following instead:
+world <- ne_countries(scale = "medium", returnclass = "sf")
 
 
-# install.packages("devtools")
+#install.packages("devtools")
 #devtools::install_github("valentinitnelav/plotbiomes")
-library(plotbiomes)
+#library(plotbiomes)
 
 # WWFload is taken from speciesgeocodeR; all credit goes to the original authors
 WWFload <- function(x = NULL) {
@@ -23,10 +27,17 @@ WWFload <- function(x = NULL) {
                 destfile = file.path(x, "wwf_ecoregions.zip"), quiet=TRUE)
   unzip(file.path(x, "wwf_ecoregions.zip"), exdir = file.path(x, "WWF_ecoregions"))
   file.remove(file.path(x, "wwf_ecoregions.zip"))
-  wwf <- maptools::readShapeSpatial(file.path(x, "WWF_ecoregions", "official",
-                                              "wwf_terr_ecos.shp"))
+  
+  # Use sf instead of maptools because the last is deactived 
+  shapefile_path <- file.path(x, "WWF_ecoregions", "official", "wwf_terr_ecos.shp")
+  wwf <- sf::st_read(shapefile_path, quiet = TRUE)
+  
   return(wwf)
 }
+#wwf <- maptools::readShapeSpatial(file.path(x, "WWF_ecoregions", "official",
+#                                      "wwf_terr_ecos.shp"))
+#return(wwf)
+#}
 
 localityToBiome <- function (points, lat="lat",lon="lon") {
   #colnames(points) <- c("acceptedScientificName","key","decimalLatitude","decimalLongitude","basisOfRecord","issues")

@@ -1,0 +1,7 @@
+"","Value","Std.Error","t-value","p-value"
+"(Intercept)",0.39,0.0747621138771874,5.21654591844016,0
+"biomeMediterranean Forests, Woodlands & Scrub",0.102,0.100303901262583,1.01690959888965,0.319
+"biomeMontane Grasslands & Shrublands",-0.000883368241615973,0.104583603841442,-0.00844652707660791,0.993
+"biomeTemperate Conifer Forests",0.2,0.129491779716539,1.54449958474434,0.136
+"biomeTropical & Subtropical Grasslands, Savannas & Shrubland",0.145,0.0915645155454792,1.58358288837317,0.126
+"biomeTropical & Subtropical Moist Broadleaf Forests",0.0700000000000001,0.096517473991203,0.725257273168796,0.475

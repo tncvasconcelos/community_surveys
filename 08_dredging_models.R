@@ -57,41 +57,59 @@ library(car)
 library(MuMIn)
 library(ggplot2)
 library(gridExtra)
+library(vioplot)
 
-# Master table
+# Masterabind# Master table
 subset_bees <- readRDS("data/community_studies_w_habitat_categories_&_env_vars.Rdata") 
 subset_bees$bee <- as.numeric(subset_bees$bee)
 coordinates <- subset_bees[,c("latitude","longitude")]
 subset_bees <- subset(subset_bees,subset_bees$spatial_analyses=="keep")
 subset_bees <- subset(subset_bees,!is.na(subset_bees$prop_bee_angios))
+#mean(subset_bees$bee) # mean with syndrome
+
+subset_bees <- subset(subset_bees,subset_bees$data_type!="syndrome")
+#mean(subset_bees$bee) # mean without syndrome
+
+palette_name1= "Sunset"
 
 # for biome, exclude those with just one observation from ploting for main manuscript
 subset_biome_comparison <- subset(subset_bees, subset_bees$biome %in% names(table(subset_bees$biome))[which(table(subset_bees$biome) > 1)])
+
+# For the supplementary material
 vioplot(subset_biome_comparison$bio15 ~ subset_biome_comparison$biome,
         xlab = "biome type", ylab = "Precipitation seasonality (bio15)",
         col = hcl.colors(length(unique(subset_biome_comparison$biome)), palette = palette_name1, alpha = 0.75),
         names=c("desert \n (n=6)","mediterranean \n (n=5)","montane \n grasslands \n (n=5)","temperate \n conifer forests \n (n=2)",
                 "tropical \n dry forest \n (n=4)","tropical \n savannas \n (n=16)","tropical \n rainforest \n (n=11)"))
+
 mtext("(A)", side = 2, line = 2, at = 1 + 0.05, las = 1, cex = 0.8)
 abline(h = 0.5, col = "darkorange", lty = 2, lwd = 2)
 
-boxplot(subset_bees$bee~subset_bees$bio15)
+#boxplot(subset_bees$bee~subset_bees$wc2.1_2.5m_bio_15)
 
-x<-lm(subset_bees$bee~subset_bees$bio15+subset_bees$bio4+subset_bees$bio17)
-summary(x)
-plot(x)
-vif(lm(bee ~ bio15 + bio17 + bio4, data = subset_bees))
-x<-gls(model = bee~bio15,
-    data = subset_bees, 
-    correlation = corSpher(form = ~ longitude + latitude, nugget = TRUE),
-    method = "ML" )   
-
-subset_bees[c("x", "z")] <- lapply(subset_bees[c("x", "z")], function(var) scale(var, scale = FALSE))
-colnames(subset_bees)
+# x<-lm(subset_bees$bee~subset_bees$bio15+subset_bees$bio4+subset_bees$bio17)
+# summary(x)
+# plot(x)
+# vif(lm(bee ~ bio15 + bio17 + bio4, data = subset_bees))
+# x<-gls(model = bee~bio15,
+#     data = subset_bees, 
+#     correlation = corSpher(form = ~ longitude + latitude, nugget = TRUE),
+#     method = "ML" )   
+# 
+# subset_bees[c("x", "z")] <- lapply(subset_bees[c("x", "z")], function(var) scale(var, scale = FALSE))
+# colnames(subset_bees)
 
 #-----------------------------------
 # Building global spatial model to identify correlates of proportion of bee-flowers in a community
-model_vars_to_include <- c("bio1","bio4","bio5","bio6","bio12","bio15","bio16","bio17","bee_rich", "wind.1","srad","et0")
+colnames(subset_bees)
+model_vars_to_include <- c("bio1",
+                           "bio4",
+                           "bio5",
+                           "bio6",
+                           "bio12",
+                           "bio15",
+                           "bio16",
+                           "bio17","bee_rich", "wind.1","srad","et0")
 full_model <- as.formula(paste("bee", "~", paste(model_vars_to_include,collapse="+")))
 full_model <- gls(model = full_model,
                       data = subset_bees, 
@@ -153,7 +171,9 @@ p1 <- ggplot(param_table, aes(y=names, x=Estimate,
   theme(legend.position = "none")
 
 pdf("plots/sum_of_weight.pdf",height=3.5,width=4)
-barplot(rev(param_table$sum_of_weight), col=c(rep("red",3),rep("lightgray",6)))
+#barplot(rev(param_table$sum_of_weight), col=c(rep("red",3),rep("lightgray",6)))
+barplot(rev(param_table$sum_of_weight), col=c(rep("lightgray",6)))
+
 dev.off()
 
 pdf("plots/globalmodels.pdf" ,height=3.5,width=4)

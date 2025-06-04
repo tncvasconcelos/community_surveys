@@ -2,16 +2,11 @@
 setwd("/Users/tvasc/Desktop/plant_pollinator_interactions")
 source("00_utility.R")
 
-#bee <- read.csv("data/brazil_bee_sprich_state.csv")
-#unique(bee$Species[bee$region=="southeast"])
-#unique(bee$region)
-#unique(bee$Species)
-
-# If local
+# Load TWDG map of botanical countries
 path="TWDG/wgsrpd-master/level3/level3.shp"
-#-----------------------------
-twgd_data <- maptools::readShapeSpatial(path)
+twgd_data <- st_read(path)
 twgd_data01 <- sf::st_as_sf(twgd_data)
+twgd_data01 <- subset(twgd_data01 , twgd_data01$LEVEL1_COD%in%c(7,8)) # crop it for Americas
 
 #########################
 # Making maps for plants
@@ -68,7 +63,7 @@ tmp_map_plants <- ggplot(data = twgd_data_plants) +
 # #save(twgd_data_bees, file="bee_sprich.Rsave")
 # load("bee_sprich.Rsave")
 
-bee_sp_rich <- maptools::readShapeSpatial("files_for_maps/bee_rich/America_beerich.shp") # shapefile sent by Alice Hughes
+bee_sp_rich <- st_read("files_for_maps/bee_rich/America_beerich.shp") # shapefile sent by Alice Hughes
 twgd_data_bees <- sf::st_as_sf(bee_sp_rich)
 
 # df_bees <- as.data.frame(twgd_data_bees)
@@ -119,7 +114,10 @@ tmp_map_prop <- ggplot(data = merged) +
   coord_sf(ylim = c(-60, 90), xlim = c(-170, 0), expand = FALSE)
 
 #merged$LEVEL3_NAM[which.max(merged$prop)]
-
+proportion <- as.numeric(merged$prop)
+LEVEL3_COD <- as.character(merged$LEVEL3_COD)
+LEVEL3_NAM <- as.character(merged$LEVEL3_NAM)
+write.csv(data.frame(LEVEL3_NAM, LEVEL3_COD, proportion), file="layers/proportion_table_for_tableS3.csv")
 
 #-------------------------------------
 # Making a raster of proportion bee:angiosperms for correlation analyses
